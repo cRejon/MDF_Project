@@ -3,7 +3,7 @@ import si7021
 from machine import I2C
 
 i2c = I2C(0)
-i2c.init(I2C.MASTER, baudrate=100000)
+i2c.init(I2C.MASTER, baudrate=100000, pins=('P22','P23'))
 
 def run_example():
     '''Runs all of the methods from the i2c driver. Imports are included in the
