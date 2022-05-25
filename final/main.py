@@ -1,7 +1,6 @@
 from network import LoRa
 import socket
 from machine import I2C, RTC, UART, Timer
-import machine
 import struct
 import ubinascii
 import time
@@ -15,13 +14,13 @@ import pms5003
 
 i2c = I2C(0)
 i2c.init(I2C.MASTER, baudrate=100000, pins=('P22','P23'))
-uart = UART(1, 9600, parity=None, stop=1, pins=('P15','P14'))
+uart = UART(1, 9600, parity=None, stop=1, pins=('P14','P15'))
 
-lc709203f = lc709203f.BatteryMonitor(bus=i2c, battery_profile=0x0001, capacity=0x0036)
-ds3231 = ds3231.DS3231(i2c)
 si7021 = si7021.Si7021(i2c)
 si1145 = si1145.Si1145(i2c)
 pms5003 = pms5003.PMS5003(uart, set='P17', reset='P16')
+ds3231 = ds3231.DS3231(i2c)
+lc709203f = lc709203f.BatteryMonitor(bus=i2c, battery_profile=0x0001, capacity=0x0036)
 
 
 def send_lora_msg(data):
@@ -47,16 +46,17 @@ def send_lora_msg(data):
     s.setblocking(True)
     # send some data
     s.send(data)
-    """
     # make the socket non-blocking
     # (because if there's no data received it will block forever...)
     s.setblocking(False)
     # get any data received (if any...)
     data = s.recv(64)
     print(data)
-    """
 
 while True:
+
+    pms5003.set_pms()
+
     chrono = Timer.Chrono()
     chrono.start()
 
@@ -73,11 +73,6 @@ while True:
     print('Temperature:         {}'.format(temp))
     print('Relative Humidity:   {}'.format(rel_hum))
 
-    pms5003.set_pms()
-    pm10_standard, pm25_standard, pm100_standard, pm10_env, \
-        pm25_env, pm100_env, particles_03um, particles_05um, \
-        particles_10um, particles_25um, particles_50um, particles_100um  = pms5003.read_pms()
-
     uv = si1145.read_uv
     ir = si1145.read_ir
     view = si1145.read_visible
@@ -85,22 +80,29 @@ while True:
     print('IR:   {}'.format(ir))
     print('Visible:   {}'.format(view))
 
+    while (chrono.read() < 30):
+        time.sleep(1)
+    
+    pm25_standard, pm100_standard  = pms5003.read_pms()[1:2]
+
+    # ds3231 doesn't give timestamp
     rtc = RTC()
-    #rtc.init((ds3231.DateTime(), 0, 0))
+    rtc.init((ds3231.DateTime(), 0, 0)) # microseconds, tzinfo (ignored)
+    time.timezone(3600)
     timestamp = time.time()
     print("Timestamp: ", timestamp)
 
-    #msg_out = struct.pack('>8HL', temp, rel_hum, pm25_standard, pm100_standard,
-    #                    uv, ir, view, volt, timestamp)
+    msg_out = struct.pack('>8HL', temp, rel_hum, pm25_standard, pm100_standard,
+                        uv, ir, view, volt, timestamp)
 
-    #struct.calcsize('8HL')
+    print(struct.calcsize('8HL'))
 
     #send_lora_msg(msg_out)
 
     chrono.stop()
     lapse = chrono.read()
-    print("Tiempo transcurrido: ", lapse)
-    time.sleep(1)
+    print("Lapse: ", lapse)
+
     #https://docs.pycom.io/datasheets/development/lopy/#deep-sleep
-    #machine.sleep(3600*1000)-lapse, False)
-    machine.sleep(30*1000)
+    #machine.deepsleep((3600*1000)-lapse, False)
+    #machine.sleep((180*1000)-lapse)
