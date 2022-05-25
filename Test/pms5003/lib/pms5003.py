@@ -22,7 +22,7 @@ class PMS5003():
     def set_pms(self):
         print("PMS: set")
         self.set_pin.value(1)
-        # time.sleep(self.STARTUP_TIME)
+        time.sleep(self.STARTUP_TIME)
 
     def reset_pms(self):
         print("PMS: reset")
