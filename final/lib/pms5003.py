@@ -80,17 +80,18 @@ PM10 ug/m3 (atmos env):                                        {}
 
 
 class PMS5003():
-    def __init__(self, uart=1, pin_enable='P17', pin_reset='P16'):
+    def __init__(self, uart=1, pin_enable='P21', pin_reset='P20'):
         self._serial = uart
         self._pin_enable = Pin(pin_enable, mode=Pin.OUT)
-        self._pin_reset = Pin(pin_reset, mode=Pin.OUT)
+        self._pin_reset = Pin(pin_reset, mode=Pin.OUT, pull=Pin.PULL_DOWN)
         self.setup()
+        self.reset()
 
     def setup(self):
+        self._pin_enable.hold(False)
         self._pin_enable.value(1)
         self._pin_reset.value(1)
 
-        self.reset()
 
     def reset(self):
         time.sleep(0.1)
@@ -102,6 +103,8 @@ class PMS5003():
     # added
     def sleep(self):
         self._pin_enable.value(0)
+        self._pin_enable.hold(True)
+
 
     def read(self):
         start = time.time()
@@ -114,7 +117,6 @@ class PMS5003():
                 raise ReadTimeoutError("PMS5003 Read Timeout: Could not find start of frame")
 
             sof = self._serial.read(1)
-            print(sof)
             if sof == None:
                 raise SerialTimeoutError("PMS5003 Read Timeout: Failed to read start of frame byte")
             sof = ord(sof) if type(sof) is bytes else sof
