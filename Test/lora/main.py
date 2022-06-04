@@ -15,8 +15,8 @@ dev_eui = ubinascii.unhexlify('70B3D54991EA6F2E')
 #print("DevEUI: %s" % (ubinascii.hexlify(lora.mac()).decode('ascii')))
 
 # join a network using OTAA (Over the Air Activation)
-lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key), timeout=0)
-#lora.join(activation=LoRa.OTAA, auth=(dev_eui, app_eui, app_key), timeout=0)
+#lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key), timeout=0)
+lora.join(activation=LoRa.OTAA, auth=(dev_eui, app_eui, app_key), timeout=0)
 
 # wait until the module has joined the network
 while not lora.has_joined():
