@@ -1,4 +1,5 @@
 import time
+import machine
 from machine import I2C, RTC
 import ds3231
 
@@ -17,4 +18,9 @@ while True:
     print("Now: ", now)
     timestamp = time.time()
     print("Timestamp: ", timestamp)
-    time.sleep(5)
+
+    minute, second = ds3231.DateTime()[4:6]
+    sleep_time = ((59-minute)*60)+(60-second)
+    
+    print("Entering in deepsleep during {} minutes".format(sleep_time/60))
+    machine.deepsleep(sleep_time*1000) 
