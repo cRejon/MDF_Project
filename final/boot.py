@@ -1,3 +1,3 @@
 import pycom
 
-pycom.heartbeat(True)
+pycom.heartbeat(False)
