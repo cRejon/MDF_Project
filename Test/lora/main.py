@@ -11,7 +11,7 @@ lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.EU868)
 app_eui = ubinascii.unhexlify('ADA4DAE3AC34676B')
 app_key = ubinascii.unhexlify('C230A4272B0C4A61916EF5D9C3F70694')
 #uncomment to use LoRaWAN application provided dev_eui
-dev_eui = ubinascii.unhexlify('70B3D54991EA6F2E')
+dev_eui = ubinascii.unhexlify('70B3D54999AADF98')
 #print("DevEUI: %s" % (ubinascii.hexlify(lora.mac()).decode('ascii')))
 
 # join a network using OTAA (Over the Air Activation)

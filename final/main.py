@@ -40,7 +40,7 @@ def send_lora_msg(pms_data):
     # create an OTAA authentication parameters
     app_eui = ubinascii.unhexlify('ADA4DAE3AC34676B')
     app_key = ubinascii.unhexlify('C230A4272B0C4A61916EF5D9C3F70694')
-    #dev_eui = ubinascii.unhexlify('70B3D54991EA6F2E')
+    #dev_eui = ubinascii.unhexlify('70B3D54999AADF98')
     dev_eui = lora.mac()
     # join a network using OTAA (Over the Air Activation)
     lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key), timeout=0)
